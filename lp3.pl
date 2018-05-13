@@ -2,10 +2,10 @@
 
 % Test 
 check_sum(CNF) :-
-    SUM = 12,
-    length(A,4),
-    length(B,4),
-    append(A,B,NUMBERS),
+    SUM = 2,
+    length(A,2),
+    length(B,2),
+    append([A],[B],NUMBERS),
     sum_equals(SUM,NUMBERS,CNF).
 
 
@@ -19,15 +19,27 @@ to_binary(N,[H|T]) :-
     Nn is floor(N / 2),
     to_binary(Nn,T).
 
+to_binary_cnf([],[]).
+
+to_binary_cnf([0|X],[-1|Y]) :-
+    to_binary_cnf(X,Y).
+
+to_binary_cnf([1|X],[1|Y]) :-
+    to_binary_cnf(X,Y).
+
+get_cnf_rep(SUM,S) :-
+    to_binary(SUM,S1),
+    to_binary_cnf(S1,S).
+
 sum_equals(SUM,NUMBERS,CNF) :-
-    to_binary(SUM,S),
+    get_cnf_rep(SUM,S),
     sum(NUMBERS,S,CNF).
 
-sum([R],R,[]).
+sum([SUM],SUM,[]).
 
-sum([N1,N2|Nr],S,CNF) :-
+sum([N1,N2|Nr],SUM,CNF) :-
     add(N1,N2,R,CNF1),
-    sum([R|Nr],S,CNF2),
+    sum([R|Nr],SUM,CNF2),
     append(CNF1,CNF2,CNF).
 
 
