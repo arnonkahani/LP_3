@@ -2,9 +2,9 @@
 
 % Test 
 check_sum(CNF) :-
-    SUM = 2,
-    length(A,2),
-    length(B,2),
+    SUM = 15,
+    length(A,4),
+    length(B,4),
     append([A],[B],NUMBERS),
     sum_equals(SUM,NUMBERS,CNF).
 
