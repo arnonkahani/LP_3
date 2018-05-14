@@ -2,15 +2,16 @@
 
 % Test 
 check_sum(CNF) :-
-    SUM = 15,
-    length(A,4),
-    length(B,4),
+    SUM = 2,
+    length(A,2),
+    length(B,2),
     append([A],[B],NUMBERS),
-    sum_equals(SUM,NUMBERS,CNF).
+    sum_equals(SUM,NUMBERS,CNF),
+    sat(CNF),
+    writeln(NUMBERS).
 
 
 % Task 1
-
 
 to_binary(0,[]).
 
@@ -46,9 +47,9 @@ sum([N1,N2|Nr],SUM,CNF) :-
 fa(X,Y,C,Z,Cn,CNF) :-
     R1 = [-X,-Y,-C,Cn],
     R2 = [-X,-Y,C,Cn],
-    R3 = [-X,Y,-C,CN],
+    R3 = [-X,Y,-C,Cn],
     R4 = [-X,Y,C,-Cn],
-    R5 = [X,-Y,-C,CN],
+    R5 = [X,-Y,-C,Cn],
     R6 = [X,-Y,C,-Cn],
     R7 = [X,Y,-C,-Cn],
     R8 = [X,Y,C,-Cn],
@@ -76,3 +77,71 @@ add([X|Xs],[Y|Ys],[Z|Zs],C,CNF) :-
     fa(X,Y,C,Z,Cn,CNF1),
     add(Xs,Ys,Zs,Cn,CNF2),
     append(CNF1,CNF2,CNF).
+
+
+% task 2 
+
+ direct(Xs,N,CNF):-   
+    length(Xs, N),
+    one_hot(Xs, CNF1),
+    append([Xs], CNF1, CNF).
+
+one_hot([_], []).
+
+one_hot([X, Y |Xs], CNF):-
+    one_hot([X | Xs], CNF1),
+    one_hot([Y | Xs], CNF2),
+    append([[[-X, -Y]], CNF1, CNF2], CNF).
+
+
+diff(Xs,Ys,[[B]|Cnf]):-
+    diff(B, Xs, Ys, Cnf).
+
+diff(B, [X], [Y], CNF):-
+    P1 = [-B, -X, -Y],
+    P2 = [-B, X, Y],
+    P3 = [B, -X, Y],
+    P4 = [B, X, -Y],
+    CNF = [P1,P2,P3,P4].
+
+diff(B, [X|Xs], [Y|Ys], CNF):-
+    P1 = [-B, -X, -Y, B1],
+    P2 = [-B, X, Y, B1],
+    P3 = [B, -X, Y],
+    P4 = [B, X, -Y],
+    P5 = [B, -B1],
+    CNF1 = [P1,P2,P3,P4,P5],
+    diff(B1, Xs, Ys, CNF2),
+    append(CNF1, CNF2, CNF).
+
+
+diff(_, [], [], []).
+
+
+all_diff([], []). 
+all_diff([X],CNF):-
+    direct(X, 4, CNF).
+
+all_diff([X, Y|Ys],CNF):-
+    direct(X, 4, CNF1),
+    direct(Y, 4, CNF2),
+    diff(X, Y, CNF3),
+    all_diff([X|Ys], CNF4),
+    all_diff([Y|Ys], CNF5),   
+    append([CNF1, CNF2, CNF3, CNF4, CNF5], CNF).
+
+% task 3
+
+
+
+for_each_pair([],[]).
+
+for_each_pair([ _ = L|T],CNF) :-
+    all_diff(L,CNF1),
+    for_each_pair(T,CNF2),
+    append(CNF1,CNF2,CNF).
+
+kakuroVerify(X) :-
+    for_each_pair(X,CNF)
+    sat(CNF),
+    writeln(X).
